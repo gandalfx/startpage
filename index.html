@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>New Tab</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="min.css">
+    <script>//<![CDATA[
+
+// start loading missing config right away
+if (!localStorage.length) {
+  var configScript = document.createElement('script');
+  configScript.src = 'config.js';
+  document.head.appendChild(configScript);
+}
+
+// init
+var core;
+window.addEventListener('load', function init() {
+  core = new Core();
+  new SearchBox();
+  new PictureBox();
+  new Menu('links');
+}, false);
+
+    //]]></script>
+    <script src="min.js" async></script>
+  </head>
+  <body>
+    <header id="header">
+      <h1>
+        <a id="logo"><span>&#9884;</span></a>
+      </h1>
+      <nav id="links"></nav>
+    </header>
+    <main id="main">
+      <form id="search"
+            method="get"
+            action="https://encrypted.google.com/search"
+            >
+        <fieldset id="searchText">
+          <input  type="text"
+                  id="searchInput"
+                  name="q"
+                  autofocus="autofocus"
+                  >
+        </fieldset>
+        <fieldset id="searchButtons"></fieldset>
+      </form>
+      <img id="myImage" src="" alt="">
+    </main>
+    <footer id="footer">
+      <ul id="imgNavigation"></ul>
+      <div class="settings">
+        <a class="icon">&#9881;</a>
+        <nav id="settings"></nav>
+      </div>
+    </footer>
+  </body>
+</html>
