@@ -1,5 +1,11 @@
 @charset "UTF-8";
 
+/*** vars ***/
+
+@gap: 50px;
+
+/*** global ***/
+
 html, body,
 ul, ol, li,
 header, footer, main,
@@ -83,6 +89,7 @@ body {
   left: 0;
   right: 0;
   bottom: 6vh;
+  padding: 0 (@gap/2);
 }
 
 /*** header ***/
@@ -135,7 +142,7 @@ h1 {
   z-index: 100;
   display: inline-block;
   vertical-align: middle;
-  margin: 25px;
+  margin: (@gap/2);
   padding: 20px 40px;
   line-height: 1em;
   border-width: 1px;
@@ -173,7 +180,7 @@ h1 {
           font-weight: bold;
           color: #444;
       }
-      &:last-child:after { content: ""; }
+      &:last-child:after { display: none; }
   }
 
 }
@@ -187,7 +194,7 @@ h1 {
   height: auto;
   max-width: 100%;
   max-height: 100%;
-  margin: 25px;
+  margin: (@gap/2);
   border-radius: 3px;
   cursor: pointer;
 }
