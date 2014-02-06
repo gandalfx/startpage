@@ -25,7 +25,7 @@ else
 fi
 
 # js
-for s in core search menu picture # xkcd
+for s in init core search menu picture # xkcd
 do
     if [ -f $s".js" ] ; then
         if $debug ; then
