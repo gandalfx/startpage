@@ -1,6 +1,8 @@
 Startpage
 ================
-This is a simple startpage for your Firefox.
+This is a simple startpage for your Firefox.    
+Preview at http://gandalfx.deviantart.com/art/Firefox-Startpage-432313142    
+Source  at http://github.com/gandalfx/startpage     
 
 Features:
 * Quickly select one of several search engines after entering your search term
