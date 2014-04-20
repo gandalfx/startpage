@@ -90,8 +90,9 @@ function PictureBox() {
    */
   function _setImage(imgId) {
     _img.setAttribute('src', _pictures[imgId].src);
-    // _img.setAttribute('title', _pictures[imgId].src);
-    document.body.className = _pictures[imgId].style;
+    _img.setAttribute('title', '#' + imgId + '     ' + _pictures[imgId].src);
+    // document.body.className = _pictures[imgId].style;
+    style.set(_pictures[imgId].style);
     _buttons[_currentId].className = '';
     _buttons[imgId].className = 'active';
     _layout();

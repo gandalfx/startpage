@@ -8,7 +8,7 @@ function Core() {
   function _init() {
     if (!localStorage.length) _loadConfig();
     else _config = {};
-    _this.addSettingsButton('reset', 'reset', _this.resetConfig)
+    _this.addSettingsButton('reset', 'reset', _this.resetConfig);
   };
   
   this.getConfig = function getConfig(cfg) {
