@@ -22,12 +22,11 @@ function SearchBox() {
    * */
   function _evalSearch(engineId) {
     var searchString = _searchInput.value.trim(),
-      regexURL = /^((https?)|(ftp)):\/\//i, // regular url
-      regexTLD = /^(([a-z0-9-]+\.)+((de)|(com)|(org)|(net)|(me)|(info)|(im)|(fr)|(co\.uk)|(io)|(cc)))(\/.*)?$/i,
-      // top level domain
-      regexFF = /^about\:[a-z]+$/;
+        regexURL = /^((https?)|(ftp)):\/\//i, // regular url
+        regexTLD = /^(([a-z0-9-]+\.)+((de)|(com)|(org)|(net)|(me)|(info)|(im)|(fr)|(co\.uk)|(io)|(cc)))(\/.*)?$/i,
+        regexReddit = /^r\/\w+$/;
     
-    if (regexURL.test(searchString) || regexFF.test(searchString)) {
+    if (regexURL.test(searchString)) {
       window.location.replace(searchString);
       return false;
     }
@@ -35,6 +34,11 @@ function SearchBox() {
       window.location.replace('http://' + searchString);
       return false;
     }
+    if (regexReddit.test(searchString)) {
+      window.location.replace('http://www.reddit.com/' + searchString);
+      return false;
+    }
+    
     document.getElementById('search').setAttribute('action', _engines[engineId].url);
     _searchInput.setAttribute('name', _engines[engineId].param);
     return true;
