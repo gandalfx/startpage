@@ -15,11 +15,16 @@ module.exports = function(grunt) {
     },
     
     jsFiles: [
-      '<%= dirs.js %>/init.js',
-      '<%= dirs.js %>/core.js',
-      '<%= dirs.js %>/style.js',
+      // core modules
+      '<%= dirs.js %>/lib.js',
+      '<%= dirs.js %>/config.js',
+      '<%= dirs.js %>/settingsMenu.js',
+      
+      // optional modules
       '<%= dirs.js %>/search.js',
       '<%= dirs.js %>/menu.js',
+      
+      '<%= dirs.js %>/style.js',
       '<%= dirs.js %>/picture.js',
     ],
     

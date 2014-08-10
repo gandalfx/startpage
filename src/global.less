@@ -301,37 +301,37 @@ h1 {
   transition-property: opacity, visibility;
   
   &:after {
-        content: "";
-        position: absolute;
-        width: 0;
-        height: 0;
-        z-index: 1001;
-        border-width: 1vh;
-        border-style: solid;
-        border-color: rgba(20,20,20,.8) transparent transparent transparent;
-        bottom: -1.9vh;
-        right: .5vh;
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    z-index: 1001;
+    border-width: 1vh;
+    border-style: solid;
+    border-color: rgba(20,20,20,.8) transparent transparent transparent;
+    bottom: -1.9vh;
+    right: .5vh;
+  }
+  
+  div:not(:first-child) {
+    border-top: 1px dotted rgba(127,127,127,.33);
+    padding-top: 1rem;
   }
   
   a {
-      display: block;
-      padding: 0 .5rem 1rem;
-      
-      &:before {
-          margin-right: .3em;
-          font-size: 1.5em;
-          vertical-align: middle;
-      }
-      
-      &.reset:before      {content: "\2718";}
-      &.style:before      {content: "\2699";}
-      &.collection:before {content: "\2764";}
-      &.xkcd:before       {content: "\03A3";}
-      &.first-of-class:not(:first-child) {
-          border-top: 1px dotted rgba(127,127,127,.33);
-          padding-top: 1rem;
-      }
+    display: block;
+    padding: 0 .5rem 1rem;
+    &:before {
+      margin-right: .3em;
+      font-size: 1.5em;
+      vertical-align: middle;
+    }
   }
+
+  div.reset       a:before {content: "\2718";}
+  div.style       a:before {content: "\2699";}
+  div.collections a:before {content: "\2764";}
+  div.xkcd        a:before {content: "\03A3";}
 }
 
 // individual styles

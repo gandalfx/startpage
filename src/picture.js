@@ -1,103 +1,181 @@
 /**
  * Image display box
  */
-function PictureBox() {
+(function(doc) {
   
-  var _this = this,
-      _gap = 50,
-      _main   = document.getElementById('main'),
-      _img    = document.getElementById('myImage'),
-      _nav    = document.getElementById('imgNavigation'),
-      _search = document.getElementById('search'),
-      _collections = core.getConfig('collections'),
-      _pictures = [],
-      _buttons = [],
-      _currentId = 0,
-      _preloader = new Image();
+  "use strict";
   
-  function _init() {
-    for ( var i = 0 ; i < _collections.length ; i++ ) {
-      if (_collections[i].active) _setCollection(i);
-      (function(i) {
-        core.addSettingsButton(_collections[i].name, 'collection', function() {
-          _setCollection(i);
-        });
-      })(i);
-    };
+  const gap = 50,
+        configFile = "pictures.conf";
+  
+  var main   = doc.getElementById("main"),
+      img    = doc.getElementById("myImage"),
+      nav    = doc.getElementById("imgNavigation"),
+      search = doc.getElementById("search"),
+      preloader = new Image,
+      collections = {},
+      currentCollection,
+      buttons,
+      currentPicture,
+      shuffle;
+  
+  config.require(configFile, parser, init);
+  
+  // some listeners
+  img.addEventListener("load", layout, false);
+  window.addEventListener("resize", layout, false);
+  
+  img.addEventListener("click", cycleImage, false);
+  
+  img.addEventListener("DOMMouseScroll", function(e) {
+    if (e.detail < 0) cycleImage(1);
+    else cycleImage(-1);
+  }, false);
+  
+  nav.addEventListener("DOMMouseScroll", function(e) {
+    if (e.detail < 0) cycleImage(1);
+    else cycleImage(-1);
+  }, false);
+  
+  
+  /// Functions
+  
+  function init(cfg) {
+    collections = cfg.collections;
+    shuffle = cfg.hasOwnProperty("shuffle") && cfg.shuffle;
     
-    // some listeners
-    _img.addEventListener('load', _layout, false);
-    window.addEventListener('resize', _layout, false);
+    if (cfg.hasOwnProperty("active_collection") && collections.hasOwnProperty(cfg.active_collection)) {
+      setCollection(cfg.active_collection);
+    }
+    else {
+      setCollection(Object.getOwnPropertyNames(collections)[0]);
+    }
     
-    _img.addEventListener('click', _this.cycleImage, false);
-    
-    _img.addEventListener('DOMMouseScroll', function(e) {
-      if (e.detail < 0) _this.cycleImage(1);
-      else _this.cycleImage(-1);
-    }, false);
-    
-    _nav.addEventListener('DOMMouseScroll', function(e) {
-      if (e.detail < 0) _this.cycleImage(1);
-      else _this.cycleImage(-1);
-    }, false);
+    Object.getOwnPropertyNames(collections).forEach(function(collName) {
+      settingsMenu.add(collName, "collections", function() {
+        setCollection(collName);
+      });
+    });
     
     // once again, for good measure
-    _layout();
+    layout();
   };
+  
+  
+  function parser(text) {
+    var props = {
+          collections: {}
+        },
+        currentCollection;
+    
+    text.split("\n").forEach(function(line) {
+      
+      // kept empty lines until now for correct line numbers
+      if (!line || line[0] === "#") return;
+      
+      var matches;
+      // property = value
+      if (matches = line.match(/^(\S+)\s*=\s*(.*)$/)) {
+        props[matches[1]] = JSON.parse(matches[2]);
+      }
+      
+      // [property] array definition
+      else if (matches = line.match(/^\[collection_(\w+)\]$/)) {
+        currentCollection = matches[1];
+        if (!props.collections.hasOwnProperty(currentCollection))
+          props.collections[currentCollection] = [];
+      }
+      
+      // [property] array entry
+      else if (currentCollection) {
+        var arr = line.split(/\s+/);
+        props.collections[currentCollection].push({
+          src:   arr[0],
+          style: arr.length > 1 ? arr[1] : ""
+        });
+      }
+      
+      else throw "Config: Syntax error on line " + (lineNum + 1);
+    });
+    
+    // prefixes
+    Object.getOwnPropertyNames(props.collections)
+      .forEach(function(collectionName) {
+        if (props.hasOwnProperty("prefix_collection_" + collectionName)) {
+          var prefix = props["prefix_collection_" + collectionName];
+          props.collections[collectionName].map(function(picture) {
+            picture.src = prefix + picture.src;
+          });
+        }
+      });
+    
+    return props;
+  }
   
   /**
    * choose from an existing set of sources
    * @see  config.js
    */
-  function _setCollection(collectionId) {
-    _pictures = core.getConfig('pictures_' + _collections[collectionId].name);
-    _nav.innerHTML = '';
-    for ( var i = 0 ; i < _pictures.length ; i++ ) {
-      _buttons[i] = document.createElement('a');
-      
-      (function(i) {
-        _buttons[i].addEventListener('click', function() {
-          _setImage(i);
-        }, false);
-      })(i);
-      
-      _nav
-        .appendChild(document.createElement('li'))
-        .appendChild(_buttons[i]);
+  function setCollection(collectionName) {
+    
+    currentPicture = 0;
+    nav.innerHTML  = "";
+    buttons        = [];
+    
+    if (shuffle) {
+      currentCollection = collections[collectionName].shuffle();
+    } else {
+      currentCollection = collections[collectionName];
     }
     
-    _setImage(Math.floor((Math.random() * _pictures.length)));
+    currentCollection.forEach(function(picture, i) {
+      buttons[i] = doc.createElement("a");
+      
+      // (function(i) {
+      buttons[i].addEventListener("click", function() {
+        setImage(i);
+      }, false);
+      // })(i);
+      
+      nav.appendChild(doc.createElement("li"))
+         .appendChild(buttons[i]);
+      
+    });
     
-    for ( var i = 0 ; i <_collections.length ; i++ ) {
-      _collections[i].active = i === collectionId;
+    if (shuffle) {
+      setImage(0);
+    } else {
+      setImage(Math.floor((Math.random() * currentCollection.length)));
     }
-    core.setConfig('collections', _collections);
+    
+    config.store(configFile, "active_collection", collectionName);
   };
   
   /**
    * cycle through images from current sources
    * @param  {integer} offset id gap, negative values allowed
    */
-  this.cycleImage = function(offset) {
-    if (isNaN(offset)) offset = 1;
-    _setImage((_currentId + offset + _pictures.length) % _pictures.length);
+  function cycleImage(offset) {
+    if (!+offset) offset = 1;
+    var len = currentCollection.length;
+    setImage((currentPicture + offset + len) % len);
   };
   
   /**
    * Set the current image.
    * Images get pre-cached using Image array
-   * @param  {integer} imgId
+   * @param  {integer} picId
    */
-  function _setImage(imgId) {
-    _img.setAttribute('src', _pictures[imgId].src);
-    _img.setAttribute('title', '#' + imgId + '     ' + _pictures[imgId].src);
-    // document.body.className = _pictures[imgId].style;
-    style.set(_pictures[imgId].style);
-    _buttons[_currentId].className = '';
-    _buttons[imgId].className = 'active';
-    _layout();
-    _preloader.src = _pictures[(imgId + 1) % _pictures.length].src;
-    _currentId = imgId;
+  function setImage(picId) {
+    img.setAttribute("src", currentCollection[picId].src);
+    img.setAttribute("title", "#" + picId + "     " + currentCollection[picId].src);
+    // doc.body.className = currentCollection[picId].style;
+    style.set(currentCollection[picId].style);
+    buttons[currentPicture].className = "";
+    buttons[picId].className = "active";
+    layout();
+    preloader.src = currentCollection[(picId + 1) % currentCollection.length].src;
+    currentPicture = picId;
   };
   
   /**
@@ -105,35 +183,34 @@ function PictureBox() {
    * -> vertical vs horizontal layout
    * -> calculate max image sizes
    */
-  function _layout() {
-    var mainHeight = _main.offsetHeight,
-        mainWidth = _main.offsetWidth,
-        searchHeight = _search.offsetHeight,
-        searchWidth = _search.offsetWidth,
-        imgHeight = _img.height,
-        imgWidth = _img.width,
-        imgRatio = _img.height / _img.width,
+  function layout() {
+    var mainHeight = main.offsetHeight,
+        mainWidth = main.offsetWidth,
+        searchHeight = search.offsetHeight,
+        searchWidth = search.offsetWidth,
+        imgHeight = img.height,
+        imgWidth = img.width,
+        imgRatio = img.height / img.width,
         searchMarginTop = 0,
         imgMaxHeight, imgMaxWidth;
     
-    if ((mainWidth - searchWidth - 3*_gap) * imgRatio >
-        Math.min(imgHeight, mainHeight - searchHeight - 3*_gap)) {
+    if ((mainWidth - searchWidth - 3*gap) * imgRatio >
+        Math.min(imgHeight, mainHeight - searchHeight - 3*gap)) {
       
-      _main.className = 'horizontalLayout';
-      imgMaxHeight = mainHeight - 2*_gap;
-      imgMaxWidth  = mainWidth - searchWidth - 3*_gap;
+      main.className = "horizontalLayout";
+      imgMaxHeight = mainHeight - 2*gap;
+      imgMaxWidth  = mainWidth - searchWidth - 3*gap;
     
     } else {
-      _main.className = 'verticalLayout';
-      imgMaxHeight = mainHeight - searchHeight - 3*_gap;
-      imgMaxWidth  = mainWidth - 2*_gap;
-      searchMarginTop = (mainHeight - searchHeight - Math.min(imgHeight, imgMaxHeight) - _gap) / 2;
+      main.className = "verticalLayout";
+      imgMaxHeight = mainHeight - searchHeight - 3*gap;
+      imgMaxWidth  = mainWidth - 2*gap;
+      searchMarginTop = (mainHeight - searchHeight - Math.min(imgHeight, imgMaxHeight) - gap) / 2;
     }
     
-    _img.style.maxHeight = Math.floor(imgMaxHeight) + 'px';
-    _img.style.maxWidth  = Math.floor(imgMaxWidth) + 'px';
-    _search.style.marginTop = Math.floor(searchMarginTop) + 'px';
+    img.style.maxHeight = Math.floor(imgMaxHeight) + "px";
+    img.style.maxWidth  = Math.floor(imgMaxWidth) + "px";
+    search.style.marginTop = Math.floor(searchMarginTop) + "px";
   };
   
-  _init();
-};
+})(document);

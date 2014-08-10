@@ -1,25 +1,32 @@
-function Style() {
+(function(win, doc, body) {
   
-  var _this = this,
-      _styles = ['', 'white'];
+  "use strict";
   
-  this.set = function set(style) {
-    var id = _styles.indexOf(style);
+  var style = {},
+      styles = ["", "white"];
+  
+  win.style = style;
+  
+  style.set = function(name) {
+    var id = styles.indexOf(name);
     if (id > -1) {
-      document.body.dataset.styleId = id;
-      document.body.className = style;
+      body.dataset.styleId = id;
+      body.className = name;
     }
-    return _this;
-  }
+    return style;
+  };
   
-  this.cycle = function cycle() {
-    document.body.className
-      = _styles[++document.body.dataset.styleId % _styles.length];
-    return _this;
-  }
+  style.cycle = function() {
+    body.className
+      = styles[++body.dataset.styleId % styles.length];
+    return style;
+  };
   
   // init
-  document.body.dataset.styleId = 0;
-  document.body.className = _styles[0];
-  core.addSettingsButton('style', 'style', _this.cycle);
-}
+  body.dataset.styleId = 0;
+  body.className = styles[0];
+  
+  // settings button
+  settingsMenu.add("toggle style", "style", style.cycle);
+  
+})(window, document, document.body);

@@ -1,17 +1,23 @@
-function SearchBox() {
+(function(win, doc){
   
-  var _this = this,
-      _searchInput = document.getElementById('searchInput'),
-      _nav         = document.getElementById('searchButtons'),
-      _engines     = core.getConfig('engines');
+  "use strict";
+  
+  var searchInput = doc.getElementById("searchInput"),
+      nav         = doc.getElementById("searchButtons"),
+      engines;
+  
+  config.require("search.conf", init);
   
   /**
    * construct
    */
-  function _init() {
-    _printEngines();
-    window.addEventListener('click', function() {
-      _searchInput.focus()
+  function init(cfg) {
+    engines = cfg.engines.map(function(engine) {
+      return {name: engine[0], param: engine[1], url: engine[2]};
+    });
+    printEngines();
+    win.addEventListener("click", function() {
+      searchInput.focus();
     }, false);
   };
   
@@ -20,49 +26,49 @@ function SearchBox() {
    * if URL -> redirect
    * @param engineId which search engine to set
    * */
-  function _evalSearch(engineId) {
-    var searchString = _searchInput.value.trim(),
+  function evalSearch(engineId) {
+    var searchString = searchInput.value.trim(),
         regexURL = /^((https?)|(ftp)):\/\//i, // regular url
         regexTLD = /^(([a-z0-9-]+\.)+((de)|(com)|(org)|(net)|(me)|(info)|(im)|(fr)|(co\.uk)|(io)|(cc)))(\/.*)?$/i,
         regexReddit = /^r\/\w+$/;
     
     if (regexURL.test(searchString)) {
-      window.location.replace(searchString);
+      win.location.replace(searchString);
       return false;
     }
     if (regexTLD.test(searchString)) {
-      window.location.replace('http://' + searchString);
+      win.location.replace("http://" + searchString);
       return false;
     }
     if (regexReddit.test(searchString)) {
-      window.location.replace('http://www.reddit.com/' + searchString);
+      win.location.replace("http://www.reddit.com/" + searchString);
       return false;
     }
     
-    document.getElementById('search').setAttribute('action', _engines[engineId].url);
-    _searchInput.setAttribute('name', _engines[engineId].param);
+    doc.getElementById("search").setAttribute("action", engines[engineId].url);
+    searchInput.setAttribute("name", engines[engineId].param);
     return true;
   };
 
   /**
    * echo the search buttons
    * */
-  function _printEngines() {
+  function printEngines() {
     var btn;
-    for ( var i=0 ; i < _engines.length ; i++ ) {
-      btn = document.createElement('button');
-      btn.innerHTML = _engines[i].name;
-      btn.setAttribute('formaction', _engines[i].url);
+    for ( var i=0 ; i < engines.length ; i++ ) {
+      btn = doc.createElement("button");
+      btn.innerHTML = engines[i].name;
+      btn.setAttribute("formaction", engines[i].url);
       
       (function(i){
-        btn.addEventListener('click', function(e) {
-          if (!_evalSearch(i)) e.preventDefault();
+        btn.addEventListener("click", function(e) {
+          if (!evalSearch(i)) e.preventDefault();
         }, false);
       })(i);
       
-      _nav.appendChild(btn);
+      nav.appendChild(btn);
     }
   };
   
-  _init();
-};
+  
+})(window, document);
