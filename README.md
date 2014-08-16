@@ -30,16 +30,16 @@ You should immediatly find the startpage in any new tabs you open.
 
 Configuration
 -------------
-Configuration is stored in config.js. You will find several
-example search engines as well as a few images. Anything preceeded by "//" will be ignored. If you don't know anything about JavaScript, just stick with the pattern you see in the file and you should be fine.
+Configuration is stored in three files: `search.conf`, `pictures.conf` and `menus.conf`.
+You can create them renaming the `example-*` Files. The file format is rather simple. Anything preceeded by "#" is a comment and will be ignored. Just stick with the pattern you see in the file and you should be fine.
 
 To add a new search engine you will have to find out how it's search URL is built. There is usually a base URL and some sort of GET-Parameter (in the final URL it is preceeded by '?' or '&'). If you don't know anything about that stuff you can drop me a note.
 
 Images may be grouped in collections and collections can be ordered. Each image is paired with a
 prefered style (currently only default and "white").
-I recommend storing images on your harddrive, otherwise loading times may increase significantly.
+I recommend storing images on your harddrive ("file://" URLs), otherwise loading times may increase significantly.
 
-For your changes in the config.js file to have any effect you need to reload your configuration by clicking "clear" in the settings menu on the bottom right of the page.
+For your changes in the *.conf files to have any effect you need to reload your configuration by clicking "clear" in the settings menu on the bottom right of the startpage.
 
 About & Contributing
 --------------------
