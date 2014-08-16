@@ -1,3 +1,8 @@
+/**
+ * startpage style choosing module
+ * @author  gandalfx
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ */
 (function(win, doc, body) {
   
   "use strict";

@@ -1,3 +1,9 @@
+/**
+ * utility function
+ * @author  gandalfx
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ */
+
 if (!Array.prototype.shuffle) {
   /*
    * Add a shuffle function to Array object prototype

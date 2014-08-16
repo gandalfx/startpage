@@ -1,3 +1,8 @@
+/**
+ * searchbox with multiple search engines to choose from
+ * @author  gandalfx
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ */
 (function(win, doc){
   
   "use strict";

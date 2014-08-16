@@ -1,3 +1,8 @@
+/**
+ * Configuration loader
+ * @author  gandalfx
+ * @license http://opensource.org/licenses/gpl-license.php GNU Public License
+ */
 (function(win, doc, store) {
   
   "use strict";
