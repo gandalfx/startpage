@@ -174,32 +174,30 @@ h1 {
   background-color: #151515;
   
   #searchInput {
-      padding: 6px 5px 5px 5px;
-      margin-left: -6px;
-      min-width: 250px;
-      width: 100%;
-      font-family: inherit;
-      background-color: transparent;
-      border-bottom: 1px solid rgba(100,100,100,.2);
-      color: inherit;
-      -moz-user-select: element;
+    padding: 6px 5px 5px 5px;
+    margin-left: -6px;
+    min-width: 250px;
+    width: 100%;
+    font-family: inherit;
+    background-color: transparent;
+    border-bottom: 1px solid rgba(100,100,100,.2);
+    color: inherit;
+    -moz-user-select: element;
   }
   button {
-      display: inline;
-      padding: 6px 0 5px;
-      background-color: transparent;
-      border-width: 0; margin: 0;
-      // color: inherit;
-      &:first-child { display: none; }
-      &:after {
-          content: "::";
-          padding: 0 7px;
-          font-weight: bold;
-          color: #444;
-      }
-      &:last-child:after { display: none; }
+    display: inline;
+    padding: 6px 0 5px;
+    background-color: transparent;
+    border-width: 0; margin: 0;
+    // color: inherit;
+    // &:first-child { display: none; }
+    &:not(:last-child):after {
+      content: "::";
+      padding: 0 7px;
+      font-weight: bold;
+      color: #444;
+    }
   }
-
 }
 
 /*** image ***/
