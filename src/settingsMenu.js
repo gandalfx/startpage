@@ -22,6 +22,6 @@
     btn.addEventListener("click", callback);
   };
   
-  settings.add("reset", "reset", config.reset);
+  settings.add("reload", "reset", config.reset);
   
 })(document);
