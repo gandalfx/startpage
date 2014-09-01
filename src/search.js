@@ -10,9 +10,11 @@
   var form        = doc.getElementById("search"),
       searchInput = doc.getElementById("searchInput"),
       nav         = doc.getElementById("searchButtons"),
+      search_prefix_delimiter = " ",
+      shortcut_prefix_delimiter = "/",
       engines     = {},
-      defaultEngine,
-      search_prefix_delimiter = " ";
+      shortcuts   = {},
+      defaultEngine;
   
   config.require("search.conf", init);
   
@@ -27,45 +29,41 @@
    * @param  {Object} cfg configuration
    */
   function init(cfg) {
-    // var btn = nav.appendChild(doc.createElement("button"));
-    // btn.innerHTML = "test";
-    // ["abort","afterprint","beforeprint","beforeunload","blur","canplay","canplaythrough","change","click","contextmenu","copy","cuechange","cut","dblclick","DOMContentLoaded","drag","dragend","dragenter","dragleave","dragover","dragstart","drop","durationchange","emptied","ended","error","focus","focusin","focusout","formchange","forminput","hashchange","input","invalid","keydown","keypress","keyup","load","loadeddata","loadedmetadata","loadstart","message","mousedown","mouseenter","mouseleave","mousemove","mouseout","mouseover","mouseup","mousewheel","offline","online","pagehide","pageshow","paste","pause","play","playing","popstate","progress","ratechange","readystatechange","redo","reset","resize","scroll","seeked","seeking","select","show","stalled","storage","submit","suspend","timeupdate","undo","unload","volumechange","waiting",].forEach(function(ename) {btn.addEventListener(ename,function(e) {
-    //   console.log(this===e.target,e.type);
-    //   e.preventDefault();
-    // });});
-    cfg.engines.forEach(
-      function(data) {
-        var engine = {
-          names:   data[0].split("|"),
-          param:   data[1],
-          url:     data[2],
-        };
-        
-        // hidden engines
-        if (engine.names[0]) {
-          printEngine(engine);
-        }
-        else {
-          engine.names.shift();
-        }
-        
-        // dictionary access + name validation
-        engine.names.forEach(function(name) {
-          if (engines.hasOwnProperty(name)) {
-            throw new Error("Engine '" + name + "' is already defined.");
-          }
-          else {
-            engines[name] = engine;
-          }
-        });
-        
-        if (!defaultEngine) {
-          setEngine(defaultEngine = engine);
-        }
+    cfg.engines.forEach(function(data) {
+      var engine = {
+        names:   data[0].split("|"),
+        param:   data[1],
+        url:     data[2],
+      };
+      
+      // hidden engines
+      if (engine.names[0]) {
+        printEngine(engine);
       }
-    );
+      else {
+        engine.names.shift();
+      }
+      
+      // dictionary access + name validation
+      engine.names.forEach(function(name) {
+        engines[name] = engine;
+      });
+      
+      if (!defaultEngine) {
+        setEngine(defaultEngine = engine);
+      }
+    });
+    
+    if (cfg.shortcuts) {
+      cfg.shortcuts.forEach(function(data) {
+        shortcuts[data[0]] = data[1];
+      });
+    }
     if (cfg.search_prefix_delimiter) {
       search_prefix_delimiter = cfg.search_prefix_delimiter;
+    }
+    if (cfg.shortcut_prefix_delimiter) {
+      shortcut_prefix_delimiter = cfg.shortcut_prefix_delimiter;
     }
   }
   
@@ -120,18 +118,25 @@
    * 
    * @param {Object} engine to be used
    */
-  function handleSubmit() {
+  function handleSubmit(evt) {
     var searchString = searchInput.value.trim(),
         regexURL = /^((https?)|(ftp)):\/\//i, // regular url
         regexTLD = /^(([a-z0-9-]+\.)+((de)|(com)|(org)|(net)|(me)|(info)|(im)|(fr)|(co\.uk)|(io)|(cc)))(\/.*)?$/i,
-        regexReddit = /^r\/\w+$/,
-        regexPrefix = new RegExp(
+        regexSearchPrefix = new RegExp(
             "^("
           + Object.getOwnPropertyNames(engines).join("|")
           + ")"
           + search_prefix_delimiter
           + "(.*)"
-          );
+        ),
+        regexShortcutPrefix = new RegExp(
+            "^("
+          + Object.getOwnPropertyNames(shortcuts).join("|")
+          + ")"
+          + shortcut_prefix_delimiter
+          + "(.*)"
+        ),
+        match;
     
     // check for URLs
     if (regexURL.test(searchString)) {
@@ -144,15 +149,14 @@
       evt.preventDefault();
       return false;
     }
-    if (regexReddit.test(searchString)) {
-      win.location.replace("http://www.reddit.com/" + searchString);
+    if (match = regexShortcutPrefix.exec(searchString)) {
+      win.location.replace(shortcuts[match[1]] + match[2])
       evt.preventDefault();
       return false;
     }
     
     // set up form for search
-    var match;
-    if (match = regexPrefix.exec(searchString)) {
+    if (match = regexSearchPrefix.exec(searchString)) {
       setEngine(engines[match[1]]);
       searchInput.value = searchString = match[2].trim();
     }
